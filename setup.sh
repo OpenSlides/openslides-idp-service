@@ -8,7 +8,7 @@ ZITADEL_URL="${ZITADEL_INTERNAL_URL:-http://zitadel-api:8080}"
 # registered external domain.  The instance is bootstrapped with
 # ZITADEL_EXTERNALDOMAIN / ZITADEL_EXTERNALPORT, so every curl call must send
 # that host (default: localhost:8080) instead of the internal docker hostname.
-ZITADEL_EXTERNAL_HOST="${ZITADEL_EXTERNAL_HOST:-localhost:8080}"
+ZITADEL_EXTERNAL_HOST="${ZITADEL_EXTERNAL_HOST:-localhost:8800}"
 PAT_FILE="/zitadel/bootstrap/admin.pat"
 CLIENT_ID_FILE="/zitadel/bootstrap/client-id"
 CLIENT_SECRET_FILE="/zitadel/bootstrap/client-secret"
@@ -18,8 +18,8 @@ APP_ID_FILE="/zitadel/bootstrap/app-id"
 LOGO_FILE="/logos/logo-192.png"
 FAVICON_FILE="/logos/favicon.ico"
 
-REDIRECT_URI="${ZITADEL_REDIRECT_URI:-http://localhost:8080/api/auth/callback}"
-POST_LOGOUT_URI="${APP_REDIRECT_URL:-http://localhost}"
+REDIRECT_URI="${ZITADEL_REDIRECT_URI:-https://localhost:8000/}"
+POST_LOGOUT_URI="${APP_REDIRECT_URL:-https://localhost8000/}"
 
 # ---------------------------------------------------------------------------
 # Wait for the admin PAT written by Zitadel's start-from-init
@@ -86,7 +86,7 @@ if [ -s "$PROJECT_ID_FILE" ] && [ -s "$APP_ID_FILE" ] && [ -s "$CLIENT_ID_FILE" 
                     \"postLogoutRedirectUris\": [\"${POST_LOGOUT_URI}\"],
                     \"version\": \"OIDC_VERSION_1_0\",
                     \"devMode\": true,
-                    \"accessTokenType\": \"OIDC_TOKEN_TYPE_BEARER\",
+                    \"accessTokenType\": \"OIDC_TOKEN_TYPE_JWT\",
                     \"accessTokenRoleAssertion\": false,
                     \"idTokenRoleAssertion\": false,
                     \"idTokenUserinfoAssertion\": true,
@@ -270,13 +270,13 @@ APP_RESP=$(curl -f \
         \"oidcConfiguration\": {
             \"redirectUris\": [\"${REDIRECT_URI}\"],
             \"responseTypes\": [\"OIDC_RESPONSE_TYPE_CODE\"],
-            \"grantTypes\": [\"OIDC_GRANT_TYPE_AUTHORIZATION_CODE\"],
+            \"grantTypes\": [\"OIDC_GRANT_TYPE_AUTHORIZATION_CODE\",\"OIDC_GRANT_TYPE_REFRESH_TOKEN\"],
             \"applicationType\": \"OIDC_APP_TYPE_WEB\",
-            \"authMethodType\": \"OIDC_AUTH_METHOD_TYPE_PRIVATE_KEY_JWT\",
+            \"authMethodType\": \"OIDC_AUTH_METHOD_TYPE_NONE\",
             \"postLogoutRedirectUris\": [\"${POST_LOGOUT_URI}\"],
             \"version\": \"OIDC_VERSION_1_0\",
             \"devMode\": true,
-            \"accessTokenType\": \"OIDC_TOKEN_TYPE_BEARER\",
+            \"accessTokenType\": \"OIDC_TOKEN_TYPE_JWT\",
             \"accessTokenRoleAssertion\": false,
             \"idTokenRoleAssertion\": false,
             \"idTokenUserinfoAssertion\": true,
