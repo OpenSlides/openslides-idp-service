@@ -198,7 +198,7 @@ APP_RESP=$(curl -f \
             \"idTokenUserinfoAssertion\": true,
             \"clockSkew\": \"0s\",
             \"skipNativeAppSuccessPage\": true,
-            \"backChannelLogoutUrl\": \"http://:localhost:8000/system/action/logout\"
+            \"backChannelLogoutUrl\": \"http://localhost.com:8000/system/action/logout\"
         }
     }")
 
@@ -255,3 +255,39 @@ printf '%s' "$CLIENT_ID" > "$CLIENT_ID_FILE"
 printf '%s' "$ORG_ID" > "$ORG_ID_FILE"
 echo "Zitadel setup complete."
 
+# Set Zitadel superuser OS-ID to 1 (Os Admin)
+SUPERUSER_RESP=$(curl -X POST "${ZITADEL_URL}/v2/users" \
+  -H "Authorization: Bearer ${PAT}" \
+  -H "Host: ${ZITADEL_EXTERNAL_HOST}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "queries": [
+      {
+        "userNameQuery": {
+          "userName": "openslides-admin@openslides.localhost"
+        }
+      }
+    ],
+    "query": {
+      "offset": 0,
+      "limit": 100
+    }
+  }')
+
+SUPERUSER_ID=$(printf '%s' "$SUPERUSER_RESP" | jq -r '.result[0].userId // empty')
+
+OSID_RESP=$(curl -X POST "${ZITADEL_URL}/v2/users/${SUPERUSER_ID}/metadata" \
+        -H "Authorization: Bearer ${PAT}" \
+        -H "Host: ${ZITADEL_EXTERNAL_HOST}" \
+        -H "Content-Type: application/json" \
+        -d '{
+            "metadata": [
+            {
+                "key": "os_id",
+                "value": "MQ=="
+            }
+            ]
+        }')
+
+echo "-------------------------------------------------------------"
+echo "Set OS ID for zitadel superuser"
