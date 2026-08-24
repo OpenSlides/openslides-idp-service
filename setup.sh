@@ -276,6 +276,7 @@ SUPERUSER_RESP=$(curl -X POST "${ZITADEL_URL}/v2/users" \
 
 SUPERUSER_ID=$(printf '%s' "$SUPERUSER_RESP" | jq -r '.result[0].userId // empty')
 
+#MQ== is an encoded "1"
 OSID_RESP=$(curl -X POST "${ZITADEL_URL}/v2/users/${SUPERUSER_ID}/metadata" \
         -H "Authorization: Bearer ${PAT}" \
         -H "Host: ${ZITADEL_EXTERNAL_HOST}" \
