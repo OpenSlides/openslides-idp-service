@@ -198,7 +198,7 @@ APP_RESP=$(curl -f \
             \"idTokenUserinfoAssertion\": true,
             \"clockSkew\": \"0s\",
             \"skipNativeAppSuccessPage\": true,
-            \"backChannelLogoutUrl\": \"http://localhost.com:8000/system/action/logout\"
+            \"backChannelLogoutUrl\": \"http://backend:9002/system/action/backchannel_logout\"
         }
     }")
 
