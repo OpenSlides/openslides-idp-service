@@ -7,4 +7,7 @@ until pg_isready -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER"; do
   sleep 1
 done
 
-psql -1 -v ON_ERROR_STOP=1 -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" -d "$DATABASE_NAME" -c "CREATE USER zitadel WITH PASSWORD 'zitadel'"
+if [ "$(psql -1 -tXAv ON_ERROR_STOP=1 -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" -d "$DATABASE_NAME" -c "SELECT 1 FROM pg_roles WHERE rolname='zitadel'")" != "1" ]
+then
+  psql -1 -v ON_ERROR_STOP=1 -h "$DATABASE_HOST" -p "$DATABASE_PORT" -U "$DATABASE_USER" -d "$DATABASE_NAME" -c "CREATE USER zitadel WITH PASSWORD 'zitadel'"
+fi
