@@ -217,14 +217,14 @@ echo "OIDC application created (App ID: $APP_ID, Client ID: $CLIENT_ID)."
 
 # Create OS ID Action and append it to JWT Token Flow
 # Use v1 instead of v2 actions; the latter require a self-hosted webhook endpoint
-ACTION_FUNCTION="function setOsId(ctx, api) { const metadata = ctx.v1.user.getMetadata(); if (!metadata || !metadata.metadata) {api.v1.claims.setClaim("os_id", 0); return;} metadata.metadata.forEach(({ key, value }) => { if (key === 'os_id' && value) { api.v1.claims.setClaim('os_id', value); } }); }"
+ACTION_FUNCTION="function setExternalId(ctx, api) { const metadata = ctx.v1.user.getMetadata(); if (!metadata || !metadata.metadata) {api.v1.claims.setClaim("externalId", 0); return;} metadata.metadata.forEach(({ key, value }) => { if (key === 'urn:zitadel:scim:externalId' && value) { api.v1.claims.setClaim('externalId', value); } }); }"
 
 ACTION_RESP=$(curl -X POST "${ZITADEL_URL}/management/v1/actions" \
         -H "Authorization: Bearer ${PAT}" \
         -H "Host: ${ZITADEL_EXTERNAL_HOST}" \
         -H "Content-Type: application/json" \
         -d "{
-            \"name\": \"setOsId\",
+            \"name\": \"setExternalId\",
             \"script\": \"${ACTION_FUNCTION}\",
             \"timeout\": \"3s\",
             \"allowedToFail\": false
@@ -276,19 +276,3 @@ SUPERUSER_RESP=$(curl -X POST "${ZITADEL_URL}/v2/users" \
 
 SUPERUSER_ID=$(printf '%s' "$SUPERUSER_RESP" | jq -r '.result[0].userId // empty')
 
-#MQ== is an encoded "1"
-OSID_RESP=$(curl -X POST "${ZITADEL_URL}/v2/users/${SUPERUSER_ID}/metadata" \
-        -H "Authorization: Bearer ${PAT}" \
-        -H "Host: ${ZITADEL_EXTERNAL_HOST}" \
-        -H "Content-Type: application/json" \
-        -d '{
-            "metadata": [
-            {
-                "key": "os_id",
-                "value": "MQ=="
-            }
-            ]
-        }')
-
-echo "-------------------------------------------------------------"
-echo "Set OS ID for zitadel superuser"
